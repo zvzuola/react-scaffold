@@ -1,0 +1,25 @@
+{
+  "name": "zvzuola",
+  "version": "1.0.0",
+  "description": "react+redux+webpack+eslint+koa脚手架",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zvzuola/react-scaffold.git"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "webpack",
+    "koa"
+  ],
+  "author": "zvzuola",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zvzuola/react-scaffold/issues"
+  },
+  "homepage": "https://github.com/zvzuola/react-scaffold#readme"
+}
