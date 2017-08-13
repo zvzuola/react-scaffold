@@ -25,7 +25,7 @@ let config = {
         exclude: /node_modules/
       },
       {
-        test: /\.less$/,
+        test: /\.css$/,
         use: ExtractTextPlugin.extract({
           use: [{
             loader: "css-loader"
