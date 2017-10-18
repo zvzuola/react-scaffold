@@ -47,7 +47,7 @@ let config = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(['./public/*.*']),
+    new CleanWebpackPlugin(['../public/*.*']),
     new ExtractTextPlugin("index-[hash].css"),
     new HtmlWebpackPlugin({
       template: './index.html'
