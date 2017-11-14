@@ -6,6 +6,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const DEV = process.env.NODE_ENV !== 'production';
 
 let config = {
   context: path.resolve(__dirname, 'src'),
@@ -14,7 +15,7 @@ let config = {
   },
   output: {
     path: path.join(__dirname, 'public'),
-    filename: '[name].[chunkhash].js',
+    filename: '[name].[hash].js',
     publicPath: '/' // for hot building
   },
   module: {
@@ -26,7 +27,7 @@ let config = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
+        use: DEV ? ["style-loader", "css-loader"] : ExtractTextPlugin.extract({
           use: [{
             loader: "css-loader"
           }],
@@ -35,7 +36,7 @@ let config = {
       },
       {
         test: /\.less$/,
-        use: ExtractTextPlugin.extract({
+        use: DEV ? ["style-loader", "css-loader", "less-loader"] : ExtractTextPlugin.extract({
           use: [{
             loader: "css-loader"
           }, {
@@ -47,14 +48,8 @@ let config = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(['./public/*.*']),
-    new ExtractTextPlugin("index-[hash].css"),
     new HtmlWebpackPlugin({
       template: './index.html'
-    }),
-    new CopyHtmlToEjs({
-      src: path.resolve(__dirname, 'public/index.html'),
-      dest: path.resolve(__dirname, 'src/server/view/index.ejs')
     })
   ],
   stats: {
@@ -66,8 +61,44 @@ let config = {
 };
 
 if (process.env.NODE_ENV === 'production') {
+  config.output.filename = '[name].[chunkhash].js'
+  config.plugins.push(...[
+    new CleanWebpackPlugin(['./public/*.*']),
+    new webpack.optimize.UglifyJsPlugin(),
+    new ExtractTextPlugin("index-[hash].css"),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      minChunks: function (module) {
+        if (module.resource && (/^.*\.(css|scss|less|jpe?g|png|gif|eot|woff|woff2|svg|ttf)$/).test(module.resource)) {
+          return false;
+        }
+        // this assumes your vendor imports exist in the node_modules directory
+        return module.context && module.context.indexOf('node_modules') !== -1;
+      }
+    }),
+    //CommonChunksPlugin will now extract all the common modules from vendor and main bundles
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'manifest' //But since there are no more common modules between them we end up with just the runtime code included in the manifest file
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    }),
+    new CopyHtmlToEjs({
+      src: path.resolve(__dirname, 'public/index.html'),
+      dest: path.resolve(__dirname, 'src/server/view/index.ejs')
+    })
+  ]);
   delete config.devtool;
   delete config.watch;
+} else {
+  config.entry.index.unshift(
+    'react-hot-loader/patch',
+    'webpack-dev-server/client?http://localhost:8800',
+    'webpack/hot/only-dev-server'
+  );
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());  
 }
 
 function CopyHtmlToEjs(options) {

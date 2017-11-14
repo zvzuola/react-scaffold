@@ -4,10 +4,10 @@
   "description": "react+redux+webpack+eslint+koa脚手架",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server/app.js",
+    "start": "cross-env NODE_ENV=development node dev_server.js",
+    "server": "node src/server/app.js",
     "lint": "eslint -c ./.eslintrc ./src/; exit 0",
     "fix": "eslint -c ./.eslintrc ./src/ --fix; exit 0",
-    "watch": "cross-env NODE_ENV=development webpack --config webpack.config.js --progress",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.js --progress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -51,7 +51,8 @@
     "less-loader": "^4.0.5",
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
-    "webpack": "^3.5.4"
+    "webpack": "^3.5.4",
+    "webpack-dev-server": "^2.9.4"
   },
   "dependencies": {
     "koa": "^2.3.0",
