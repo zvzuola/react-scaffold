@@ -5,8 +5,7 @@ import { AppContainer } from 'react-hot-loader';
 import App from './router';
 import createStore from './store';
 
-const store = 
-createStore(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+const store = createStore(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 render(
   <AppContainer>

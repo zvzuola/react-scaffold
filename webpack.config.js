@@ -11,7 +11,7 @@ const DEV = process.env.NODE_ENV !== 'production';
 let config = {
   context: path.resolve(__dirname, 'src'),
   entry: {
-    index: ['babel-polyfill', './index.js']
+    index: ['./index.js']
   },
   output: {
     path: path.join(__dirname, 'public'),
@@ -61,6 +61,9 @@ let config = {
 };
 
 if (process.env.NODE_ENV === 'production') {
+  config.entry.index.unshift(
+    'babel-polyfill',
+  );
   config.output.filename = '[name].[chunkhash].js'
   config.plugins.push(...[
     new CleanWebpackPlugin(['./public/*.*']),
@@ -94,11 +97,12 @@ if (process.env.NODE_ENV === 'production') {
   delete config.watch;
 } else {
   config.entry.index.unshift(
+    'babel-polyfill',
     'react-hot-loader/patch',
     'webpack-dev-server/client?http://localhost:8800',
     'webpack/hot/only-dev-server'
   );
-  config.plugins.push(new webpack.HotModuleReplacementPlugin());  
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());
 }
 
 function CopyHtmlToEjs(options) {
