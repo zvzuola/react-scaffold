@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development node dev_server.js",
-    "server": "node src/server/app.js",
+    "server": "pm2 start pm2.json",
     "lint": "eslint -c ./.eslintrc ./src/; exit 0",
     "fix": "eslint -c ./.eslintrc ./src/ --fix; exit 0",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.js --progress",

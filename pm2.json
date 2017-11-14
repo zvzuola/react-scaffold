@@ -1,0 +1,9 @@
+{
+    "name": "react-scaffold",
+    "script": "./src/server/app.js",
+    "cwd": "./",
+    "exec_mode": "cluster",
+    "instances": -1, //意思是max - 1
+    "error_file": "./logs/app-err.log",
+    "out_file": "./logs/app-out.log"
+}
