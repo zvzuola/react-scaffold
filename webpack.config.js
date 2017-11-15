@@ -44,13 +44,20 @@ let config = {
           }],
           fallback: "style-loader"
         })
+      },
+      {
+        test: /\.(jpe?g|png|gif|eot|woff|woff2|svg|ttf)([\?]?.*)$/i,
+        use: DEV ? ['url-loader'] : ['file-loader']
       }
     ]
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.html'
-    })
+    }),
+    new CopyWebpackPlugin([
+      { from: path.resolve(__dirname, './static_file') } // 把static_file的文件拷到对应的output目录下
+    ])
   ],
   stats: {
     colors: true // Nice colored output
