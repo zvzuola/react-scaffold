@@ -19,10 +19,6 @@ appStatic.use(koaStatic(path.join(__dirname, '../../public'), {
   maxage: 0
 }));
 app.use(mount('/', appStatic))
-// 静态资源加载，为什么要采用上面那种mount方式？
-// app.use(koaStatic(path.join(__dirname, '../../public'), {
-//   maxage: 0
-// }));
 
 process.title = '';
 
