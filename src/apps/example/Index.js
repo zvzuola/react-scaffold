@@ -1,12 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 class App extends React.PureComponent {
+  
+  static propTypes = {
+    list: PropTypes.object.isRequired,
+  }
+
   render() {
     console.log(this.props.list);
     return (
-      <div>redux hello world</div>
+      <div>react redux hello world</div>
     );
   }
 }

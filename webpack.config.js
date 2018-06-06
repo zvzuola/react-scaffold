@@ -2,11 +2,12 @@ const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const DEV = process.env.NODE_ENV !== 'production';
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 
 let config = {
   context: path.resolve(__dirname, 'src'),
@@ -51,57 +52,59 @@ let config = {
       }
     ]
   },
+  optimization: {
+    runtimeChunk: {
+      name: "manifest"
+    },
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "common",
+          chunks: "all"
+        }
+      }
+    },
+    minimize: !DEV,
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.html'
     }),
     new CopyWebpackPlugin([
       { from: path.resolve(__dirname, './static_file') } // 把static_file的文件拷到对应的output目录下
-    ]),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      minChunks: function (module) {
-        if (module.resource && (/^.*\.(css|scss|less|jpe?g|png|gif|eot|woff|woff2|svg|ttf)$/).test(module.resource)) {
-          return false;
-        }
-        // this assumes your vendor imports exist in the node_modules directory
-        return module.context && module.context.indexOf('node_modules') !== -1;
-      }
-    }),
-    //CommonChunksPlugin will now extract all the common modules from vendor and main bundles
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'manifest' //But since there are no more common modules between them we end up with just the runtime code included in the manifest file
-    })
+    ])
   ],
   stats: {
     colors: true // Nice colored output
   },
   // Create Sourcemaps for the bundle
-  devtool: 'source-map',
-  watch: true
+  devtool: !DEV ? false : 'source-map',
+  watch: DEV,
+  mode: process.env.NODE_ENV || 'development'
 };
 
-if (process.env.NODE_ENV === 'production') {
+if (!DEV) {
   config.entry.index.unshift(
     'babel-polyfill',
   );
   config.output.filename = '[name].[chunkhash].js'
   config.plugins.push(...[
-    new CleanWebpackPlugin(['./public/*.*']),
-    new webpack.optimize.UglifyJsPlugin(),
-    new ExtractTextPlugin("index-[hash].css"),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require(path.resolve(__dirname, './public/manifest.json')),
     }),
+    new AddAssetHtmlPlugin({
+      filepath: path.resolve(__dirname, 'public/vendor.dll.js'),
+      hash: true,
+      includeSourcemap: false
+    }),
+    new ExtractTextPlugin("index-[hash].css"),
     new CopyHtmlToEjs({
       src: path.resolve(__dirname, 'public/index.html'),
       dest: path.resolve(__dirname, 'src/server/view/index.ejs')
     })
   ]);
-  delete config.devtool;
-  delete config.watch;
 } else {
   config.entry.index.unshift(
     'babel-polyfill',
@@ -109,7 +112,10 @@ if (process.env.NODE_ENV === 'production') {
     'webpack-dev-server/client?http://localhost:8800',
     'webpack/hot/only-dev-server'
   );
-  config.plugins.push(new webpack.HotModuleReplacementPlugin());
+  config.plugins.push(...[
+    new webpack.HotModuleReplacementPlugin(),
+    new BundleAnalyzerPlugin()
+  ]);
 }
 
 function CopyHtmlToEjs(options) {
@@ -119,8 +125,8 @@ function CopyHtmlToEjs(options) {
 
 CopyHtmlToEjs.prototype.apply = function (compiler) {
   var _this = this;
-  compiler.plugin('done', function (stats) {
-    console.log(stats.hash);
+  compiler.hooks.done.tap('CopyHtmlToEjs', function (stats) {
+    console.log(stats.hash, '-------------');
     var data = fs.readFileSync(_this.src, 'utf8');
     fs.writeFileSync(_this.dest, data);
   })
