@@ -4,9 +4,12 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 class App extends React.PureComponent {
-  
   static propTypes = {
-    list: PropTypes.object.isRequired,
+    list: PropTypes.object,
+  }
+
+  static defaultProps = {
+    list: {},
   }
 
   render() {
