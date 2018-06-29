@@ -8,11 +8,13 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const DEV = process.env.NODE_ENV !== 'production';
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 let config = {
   context: path.resolve(__dirname, 'src'),
   entry: {
-    index: ['./index.js']
+    index: ['./index.js'],
+    vendor: ['react', 'react-dom', 'react-router']
   },
   output: {
     path: path.join(__dirname, 'public'),
@@ -58,16 +60,23 @@ let config = {
     },
     splitChunks: {
       cacheGroups: {
-        commons: {
+        common: {
           test: /[\\/]node_modules[\\/]/,
           name: "common",
-          chunks: "all"
+          chunks: "all",
+          priority: -20 //优先级调低
+        },
+        vendor: {
+          chunks: "initial",
+          name: "vendor",
+          test: 'vendor'
         }
       }
     },
     minimize: !DEV,
   },
   plugins: [
+    new CleanWebpackPlugin(['./public/*.*']),
     new HtmlWebpackPlugin({
       template: './index.html'
     }),
@@ -90,15 +99,6 @@ if (!DEV) {
   );
   config.output.filename = '[name].[chunkhash].js'
   config.plugins.push(...[
-    new webpack.DllReferencePlugin({
-      context: __dirname,
-      manifest: require(path.resolve(__dirname, './public/manifest.json')),
-    }),
-    new AddAssetHtmlPlugin({
-      filepath: path.resolve(__dirname, 'public/vendor.dll.js'),
-      hash: true,
-      includeSourcemap: false
-    }),
     new ExtractTextPlugin("index-[hash].css"),
     new CopyHtmlToEjs({
       src: path.resolve(__dirname, 'public/index.html'),
@@ -114,7 +114,7 @@ if (!DEV) {
   );
   config.plugins.push(...[
     new webpack.HotModuleReplacementPlugin(),
-    new BundleAnalyzerPlugin()
+    // new BundleAnalyzerPlugin()
   ]);
 }
 
