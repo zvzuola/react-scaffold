@@ -1,26 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import { observer, inject } from 'mobx-react';
 
-class App extends React.PureComponent {
+@inject('store', 'actions') @observer
+class App extends React.Component {
   static propTypes = {
-    list: PropTypes.object,
+    store: PropTypes.object,
+    actions: PropTypes.object,
   }
 
   static defaultProps = {
-    list: {},
+    store: {},
+    actions: {},
   }
 
   render() {
-    console.log(this.props.list);
+    const { store, actions } = this.props;
     return (
-      <div>react redux hello world</div>
+      <div>react redux hello world {this.props.store.a}
+        <div>todos:{store.todos}</div>
+        <button onClick={() => actions.add()}>点击加1</button>
+        <button onClick={() => actions.remove()}>点击减1</button>
+      </div>
     );
   }
 }
-
-const mapStateToProps = state => ({
-  list: state.list,
-});
-export default withRouter(connect(mapStateToProps)(App));
+export default withRouter(App);

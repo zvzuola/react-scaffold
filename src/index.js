@@ -3,13 +3,12 @@ import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import App from './router';
-import createStore from './store';
-
-const store = createStore(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+import store from './store'
+import actions from './actions'
 
 render(
   <AppContainer>
-    <App store={store} />
+    <App store={store} actions={actions} />
   </AppContainer>,
   document.getElementById('root'),
 );
