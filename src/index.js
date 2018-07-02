@@ -3,12 +3,13 @@ import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import App from './router';
-import store from './store'
-import actions from './actions'
+import * as stores from './store';
+import actions from './actions';
+
 
 render(
   <AppContainer>
-    <App store={store} actions={actions} />
+    <App {...stores} actions={actions} />
   </AppContainer>,
   document.getElementById('root'),
 );
@@ -18,7 +19,7 @@ if (module.hot) {
     const NextApp = require('./router').default;
     render(
       <AppContainer>
-        <NextApp store={store} />
+        <NextApp {...stores} actions={actions} />
       </AppContainer>,
       document.getElementById('root'),
     );

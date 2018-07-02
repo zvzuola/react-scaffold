@@ -13,16 +13,8 @@
 //   return store;
 // };
 
+import todosStore from './todos';
+import usersStore from './users';
 
-import { observable } from 'mobx';
-
-class Store {
-  @observable todos;
-  @observable a;
-
-  constructor() {
-    this.todos = [1, 2, 3];
-    this.a = 222;
-  }
-}
-export default new Store();
+export default todosStore;
+export { todosStore, usersStore };

@@ -1,17 +1,26 @@
 import { action } from 'mobx';
-import store from '../store';
+import * as stores from '../store';
 
 class Actions {
-  constructor({ stores }) {
-    this.store = stores;
+  constructor(opt) {
+    this.todosStore = opt.todosStore;
+    this.usersStore = opt.usersStore;
   }
   @action
   add = () => {
-    this.store.a += 1;
+    this.todosStore.a += 1;
   }
   @action
   remove = () => {
-    this.store.a -= 1;
+    this.todosStore.a -= 1;
+  }
+  @action
+  pushTodos = (item) => {
+    this.todosStore.todos = this.todosStore.todos.concat(item || 1);
+  }
+  @action
+  pushUsers = (item) => {
+    this.usersStore.users = this.usersStore.users.concat(item || { name: 'zr' });
   }
 }
-export default new Actions({ stores: store });
+export default new Actions(stores);
